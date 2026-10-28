@@ -4,6 +4,10 @@
 name: Build Code GPT Editor
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - BUILD_NOW.txt          # change this file (any text) and push: a new build starts
   workflow_dispatch:
     inputs:
       windows:
@@ -67,7 +71,7 @@ jobs:
   # ------------------------------------------------------------------ Windows
   windows-compile:
     needs: version
-    if: github.event.inputs.windows == 'true'
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.windows }}
     runs-on: windows-2022
     defaults:
       run:
@@ -160,7 +164,7 @@ jobs:
   # ------------------------------------------------------------------ macOS
   macos:
     needs: version
-    if: github.event.inputs.macos == 'true'
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.macos }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -217,7 +221,7 @@ jobs:
   # ------------------------------------------------------------------ Linux
   linux-compile:
     needs: version
-    if: github.event.inputs.linux == 'true'
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.linux }}
     runs-on: ubuntu-22.04
     env:
       OS_NAME: linux
@@ -328,7 +332,7 @@ jobs:
       - name: Publish the GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRAFT: ${{ github.event.inputs.draft == 'true' && '--draft' || '' }}
+          DRAFT: ${{ inputs.draft && '--draft' || '' }}
         run: |
           ls -la assets
           NOTES="Code GPT Editor ${RELEASE_VERSION}, built on VS Code $( echo "${RELEASE_VERSION}" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]).*/\1/' ). Windows: CodeGPTUserSetup-x64-*.exe. macOS: the .dmg for your Mac (arm64 = Apple silicon). Linux: .deb, .rpm or .tar.gz."
