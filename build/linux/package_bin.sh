@@ -122,6 +122,22 @@ if [[ -f ./build/azure-pipelines/linux/setup-env.sh ]]; then
   grep -n "raw.githubusercontent.com" ./build/azure-pipelines/linux/setup-env.sh || true
 fi
 
+# Code GPT: the .deb step downloads Chromium's dpkg-shlibdeps.pl from raw.githubusercontent.com with a bare curl, which
+# GitHub rate-limits (429) on shared build machines. Use the GitHub API with the build token, with retries.
+if [[ -f ./build/linux/debian/calculate-deps.ts ]]; then
+  node -e '
+const fs = require("fs"); const f = "./build/linux/debian/calculate-deps.ts"; let s = fs.readFileSync(f, "utf8");
+const old = "const result = spawnSync(\x27curl\x27, [dpkgShlibdepsUrl, \x27-o\x27, dpkgShlibdepsScriptLocation]);";
+const neu = "const cgVersion = chromiumManifest[0].version; const cgTok = process.env[\x27GITHUB_TOKEN\x27]; " +
+  "const cgArgs = [\x27-fsSL\x27, \x27--retry\x27, \x278\x27, \x27--retry-delay\x27, \x2720\x27, \x27-o\x27, dpkgShlibdepsScriptLocation]; " +
+  "let result = cgTok ? spawnSync(\x27curl\x27, [...cgArgs, \x27-H\x27, `Authorization: Bearer ${cgTok}`, \x27-H\x27, \x27Accept: application/vnd.github.raw+json\x27, " +
+  "`https://api.github.com/repos/chromium/chromium/contents/third_party/dpkg-shlibdeps/dpkg-shlibdeps.pl?ref=${cgVersion}`]) : { status: 1, stderr: \x27\x27 }; " +
+  "if (result.status !== 0) { result = spawnSync(\x27curl\x27, [...cgArgs, dpkgShlibdepsUrl]); }";
+if (s.includes(old)) { s = s.replace(old, neu); fs.writeFileSync(f, s); console.log("patched dpkg-shlibdeps download"); }
+else { console.log("dpkg-shlibdeps download line not found (already changed upstream)"); }
+'
+fi
+
 if [[ -z "${VSCODE_SKIP_SETUPENV}" ]]; then
   if [[ -n "${VSCODE_SKIP_SYSROOT}" ]]; then
     source ./build/azure-pipelines/linux/setup-env.sh --skip-sysroot

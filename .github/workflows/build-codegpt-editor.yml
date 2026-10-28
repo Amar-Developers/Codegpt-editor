@@ -306,6 +306,7 @@ jobs:
         run: ./build/codegpt_run.sh ./build/linux/package_bin.sh
       - name: Prepare assets (.deb, .rpm, .tar.gz)
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VSCODE_SYSROOT_REPOSITORY: ${{ steps.build.outputs.VSCODE_SYSROOT_REPOSITORY }}
           VSCODE_SYSROOT_VERSION: ${{ steps.build.outputs.VSCODE_SYSROOT_VERSION }}
           VSCODE_SYSROOT_PREFIX: ${{ steps.build.outputs.VSCODE_SYSROOT_PREFIX }}
