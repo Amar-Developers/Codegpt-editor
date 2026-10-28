@@ -50,7 +50,7 @@ permissions: {}
 
 jobs:
   version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       RELEASE_VERSION: ${{ steps.v.outputs.RELEASE_VERSION }}
     steps:
@@ -105,7 +105,7 @@ jobs:
       - name: Compile
         env:
           SHOULD_BUILD: 'yes'
-        run: ./build.sh
+        run: ./build/codegpt_run.sh ./build.sh
       - name: Compress compiled source
         run: |
           find vscode -type f -not -path "*/node_modules/*" -not -path "vscode/.build/node/*" -not -path "vscode/.git/*" > vscode.txt
@@ -152,7 +152,7 @@ jobs:
           npm_config_target_arch: x64
         run: ./build/windows/package.sh
       - name: Prepare assets
-        run: ./prepare_assets.sh
+        run: ./build/codegpt_run.sh ./prepare_assets.sh
       - name: Checksums
         run: ./prepare_checksums.sh
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -205,7 +205,7 @@ jobs:
         env:
           SHOULD_BUILD: 'yes'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./build.sh
+        run: ./build/codegpt_run.sh ./build.sh
       - name: Prepare assets (signs and notarizes only if the Apple secrets are set)
         env:
           CERTIFICATE_OSX_APP_PASSWORD: ${{ secrets.CERTIFICATE_OSX_APP_PASSWORD }}
@@ -213,7 +213,7 @@ jobs:
           CERTIFICATE_OSX_P12_DATA: ${{ secrets.CERTIFICATE_OSX_P12_DATA }}
           CERTIFICATE_OSX_P12_PASSWORD: ${{ secrets.CERTIFICATE_OSX_P12_PASSWORD }}
           CERTIFICATE_OSX_TEAM_ID: ${{ secrets.CERTIFICATE_OSX_TEAM_ID }}
-        run: ./prepare_assets.sh
+        run: ./build/codegpt_run.sh ./prepare_assets.sh
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bin-macos-${{ matrix.vscode_arch }}
@@ -260,7 +260,7 @@ jobs:
       - name: Compile
         env:
           SHOULD_BUILD: 'yes'
-        run: ./build.sh
+        run: ./build/codegpt_run.sh ./build.sh
       - name: Compress compiled source
         run: |
           find vscode -type f -not -path "*/node_modules/*" -not -path "vscode/.build/node/*" -not -path "vscode/.git/*" > vscode.txt
@@ -275,7 +275,7 @@ jobs:
 
   linux-build:
     needs: [version, linux-compile]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: vscodium/vscodium-linux-build-agent:focal-x64
     env:
@@ -303,13 +303,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_arch: x64
-        run: ./build/linux/package_bin.sh
+        run: ./build/codegpt_run.sh ./build/linux/package_bin.sh
       - name: Prepare assets (.deb, .rpm, .tar.gz)
         env:
           VSCODE_SYSROOT_REPOSITORY: ${{ steps.build.outputs.VSCODE_SYSROOT_REPOSITORY }}
           VSCODE_SYSROOT_VERSION: ${{ steps.build.outputs.VSCODE_SYSROOT_VERSION }}
           VSCODE_SYSROOT_PREFIX: ${{ steps.build.outputs.VSCODE_SYSROOT_PREFIX }}
-        run: ./prepare_assets.sh
+        run: ./build/codegpt_run.sh ./prepare_assets.sh
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bin-linux-x64
@@ -320,7 +320,7 @@ jobs:
   release:
     needs: [version, windows-build, macos, linux-build]
     if: ${{ always() && needs.version.result == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
