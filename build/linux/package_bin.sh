@@ -115,6 +115,13 @@ for i in {1..5}; do # try 5 times
   echo "Npm install failed $i, trying again..."
 done
 
+# Code GPT: VS Code's setup script downloads Chromium's clang helper from raw.githubusercontent.com with a bare curl.
+# GitHub sometimes answers "429 rate-limited" and the build breaks. Retry, and send the build's token for a higher limit.
+if [[ -f ./build/azure-pipelines/linux/setup-env.sh ]]; then
+  sed -i 's#curl -s https://raw.githubusercontent.com/#curl -sSfL --retry 8 --retry-delay 20 ${GITHUB_TOKEN:+-H "Authorization: Bearer ${GITHUB_TOKEN}"} https://raw.githubusercontent.com/#g' ./build/azure-pipelines/linux/setup-env.sh
+  grep -n "raw.githubusercontent.com" ./build/azure-pipelines/linux/setup-env.sh || true
+fi
+
 if [[ -z "${VSCODE_SKIP_SETUPENV}" ]]; then
   if [[ -n "${VSCODE_SKIP_SYSROOT}" ]]; then
     source ./build/azure-pipelines/linux/setup-env.sh --skip-sysroot
