@@ -1,1 +1,1 @@
-build 2026-10-28T19:44Z: Home top bar
+build 2026-10-28T19:50Z: Cursor-style top-left, File Edit View Help

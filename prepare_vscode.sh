@@ -252,6 +252,15 @@ replace "s|\\[\\/\\* BUILTIN_ANNOUNCEMENTS \\*\\/\\]|$( tr -d '\n' < ../announce
 replace 's|Microsoft Corporation|VSCodium|' build/lib/electron.ts
 replace 's|([0-9]) Microsoft|\1 VSCodium|' build/lib/electron.ts
 
+# Code GPT: a short menu bar like Cursor's: File, Edit, View, Help. (Selection, Go, Run and Terminal stay in the
+# command palette, the View menu and their keyboard shortcuts.)
+node -e '
+const fs = require("fs"); const f = "src/vs/workbench/browser/parts/titlebar/menubarControl.ts"; let s = fs.readFileSync(f, "utf8");
+const old = "if (mainMenuAction instanceof SubmenuItemAction && typeof mainMenuAction.item.title !== \x27string\x27) {";
+const neu = "if (mainMenuAction instanceof SubmenuItemAction && typeof mainMenuAction.item.title !== \x27string\x27 && ![\x27Selection\x27, \x27Go\x27, \x27Run\x27, \x27Terminal\x27].includes(mainMenuAction.item.title.original)) {";
+if (s.includes(old)) { s = s.replace(old, neu); fs.writeFileSync(f, s); console.log("menu bar: File, Edit, View, Help"); } else { console.log("menu bar line not found; menus unchanged"); }
+'
+
 if [[ "${OS_NAME}" == "linux" ]]; then
   # Microsoft's post-install script adds their apt repository unless the package is the open-source build. Our package is
   # codegpt-editor, so tell the script that name, and nothing from Microsoft is added to people's systems.
