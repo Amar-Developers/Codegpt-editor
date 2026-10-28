@@ -1,1 +1,1 @@
-build 2026-10-28T19:23Z: Linux .deb step download retries
+build 2026-10-28T19:26Z: installer publisher AMAR Developers, license page

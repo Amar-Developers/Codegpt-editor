@@ -9,7 +9,10 @@ else
   cp -rp src/stable/* vscode/
 fi
 
-cp -f LICENSE vscode/LICENSE.txt
+# Code GPT: the installer's "License Agreement" page (Windows) shows this file. It points to Code GPT's terms and
+# privacy policy, and keeps the full MIT notices of VS Code and VSCodium that the editor is built from.
+cp -f CODEGPT_LICENSE.txt vscode/LICENSE.txt
+{ echo ""; echo "------------------------------------------------------------------------"; echo ""; cat LICENSE; } >> vscode/LICENSE.txt
 
 cd vscode || { echo "'vscode' dir not found"; exit 1; }
 
@@ -42,7 +45,7 @@ setpath "product" "introductoryVideosUrl" "https://go.microsoft.com/fwlink/?link
 setpath "product" "keyboardShortcutsUrlLinux" "https://go.microsoft.com/fwlink/?linkid=832144"
 setpath "product" "keyboardShortcutsUrlMac" "https://go.microsoft.com/fwlink/?linkid=832143"
 setpath "product" "keyboardShortcutsUrlWin" "https://go.microsoft.com/fwlink/?linkid=832145"
-setpath "product" "licenseUrl" "https://github.com/VSCodium/vscodium/blob/master/LICENSE"
+setpath "product" "licenseUrl" "https://codegpt.it.com/terms"
 setpath_json "product" "linkProtectionTrustedDomains" '["https://open-vsx.org"]'
 setpath "product" "releaseNotesUrl" "https://go.microsoft.com/fwlink/?LinkID=533483#vscode"
 setpath "product" "reportIssueUrl" "https://github.com/VSCodium/vscodium/issues/new"
@@ -250,42 +253,30 @@ replace 's|Microsoft Corporation|VSCodium|' build/lib/electron.ts
 replace 's|([0-9]) Microsoft|\1 VSCodium|' build/lib/electron.ts
 
 if [[ "${OS_NAME}" == "linux" ]]; then
-  # microsoft adds their apt repo to sources
-  # unless the app name is code-oss
-  # as we are renaming the application to vscodium
-  # we need to edit a line in the post install template
-  if [[ "${VSCODE_QUALITY}" == "insider" ]]; then
-    sed -i "s/code-oss/codium-insiders/" resources/linux/debian/postinst.template
-  else
-    sed -i "s/code-oss/codium/" resources/linux/debian/postinst.template
-  fi
+  # Microsoft's post-install script adds their apt repository unless the package is the open-source build. Our package is
+  # codegpt-editor, so tell the script that name, and nothing from Microsoft is added to people's systems.
+  sed -i "s/code-oss/${BINARY_NAME}/" resources/linux/debian/postinst.template
 
-  # fix the packages metadata
-  # code.appdata.xml
-  sed -i 's|Visual Studio Code|VSCodium|g' resources/linux/code.appdata.xml
-  sed -i 's|https://code.visualstudio.com/docs/setup/linux|https://github.com/VSCodium/vscodium#download-install|' resources/linux/code.appdata.xml
-  sed -i 's|https://code.visualstudio.com/home/home-screenshot-linux-lg.png|https://vscodium.com/img/vscodium.png|' resources/linux/code.appdata.xml
-  sed -i 's|https://code.visualstudio.com|https://vscodium.com|' resources/linux/code.appdata.xml
+  # package metadata: Code GPT Editor by AMAR Developers
+  sed -i 's|Visual Studio Code|Code GPT Editor|g' resources/linux/code.appdata.xml
+  sed -i 's|https://code.visualstudio.com/docs/setup/linux|https://codegpt.it.com/editor|' resources/linux/code.appdata.xml
+  sed -i 's|https://code.visualstudio.com/home/home-screenshot-linux-lg.png|https://codegpt.it.com/static/brand/og-image.png|' resources/linux/code.appdata.xml
+  sed -i 's|https://code.visualstudio.com|https://codegpt.it.com|' resources/linux/code.appdata.xml
 
-  # control.template
-  sed -i 's|Microsoft Corporation <vscode-linux@microsoft.com>|VSCodium Team https://github.com/VSCodium/vscodium/graphs/contributors|'  resources/linux/debian/control.template
-  sed -i 's|Visual Studio Code|VSCodium|g' resources/linux/debian/control.template
-  sed -i 's|https://code.visualstudio.com/docs/setup/linux|https://github.com/VSCodium/vscodium#download-install|' resources/linux/debian/control.template
-  sed -i 's|https://code.visualstudio.com|https://vscodium.com|' resources/linux/debian/control.template
+  sed -i 's|Microsoft Corporation <vscode-linux@microsoft.com>|AMAR Developers <support@codegpt.it.com>|'  resources/linux/debian/control.template
+  sed -i 's|Visual Studio Code|Code GPT Editor|g' resources/linux/debian/control.template
+  sed -i 's|https://code.visualstudio.com/docs/setup/linux|https://codegpt.it.com/editor|' resources/linux/debian/control.template
+  sed -i 's|https://code.visualstudio.com|https://codegpt.it.com|' resources/linux/debian/control.template
 
-  # code.spec.template
-  sed -i 's|Microsoft Corporation|VSCodium Team|' resources/linux/rpm/code.spec.template
-  sed -i 's|Visual Studio Code Team <vscode-linux@microsoft.com>|VSCodium Team https://github.com/VSCodium/vscodium/graphs/contributors|' resources/linux/rpm/code.spec.template
-  sed -i 's|Visual Studio Code|VSCodium|' resources/linux/rpm/code.spec.template
-  sed -i 's|https://code.visualstudio.com/docs/setup/linux|https://github.com/VSCodium/vscodium#download-install|' resources/linux/rpm/code.spec.template
-  sed -i 's|https://code.visualstudio.com|https://vscodium.com|' resources/linux/rpm/code.spec.template
-
-  # snapcraft.yaml
-  sed -i 's|Visual Studio Code|VSCodium|' resources/linux/rpm/code.spec.template
+  sed -i 's|Visual Studio Code Team <vscode-linux@microsoft.com>|AMAR Developers <support@codegpt.it.com>|' resources/linux/rpm/code.spec.template
+  sed -i 's|Microsoft Corporation|AMAR Developers|' resources/linux/rpm/code.spec.template
+  sed -i 's|Visual Studio Code|Code GPT Editor|' resources/linux/rpm/code.spec.template
+  sed -i 's|https://code.visualstudio.com/docs/setup/linux|https://codegpt.it.com/editor|' resources/linux/rpm/code.spec.template
+  sed -i 's|https://code.visualstudio.com|https://codegpt.it.com|' resources/linux/rpm/code.spec.template
 elif [[ "${OS_NAME}" == "windows" ]]; then
   # code.iss
-  sed -i 's|https://code.visualstudio.com|https://vscodium.com|' build/win32/code.iss
-  sed -i 's|Microsoft Corporation|VSCodium|' build/win32/code.iss
+  sed -i 's|https://code.visualstudio.com|https://codegpt.it.com|' build/win32/code.iss
+  sed -i 's|Microsoft Corporation|AMAR Developers|' build/win32/code.iss
 fi
 
 cd ..

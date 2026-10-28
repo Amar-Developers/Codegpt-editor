@@ -1,0 +1,14 @@
+Code GPT Editor by AMAR Developers
+
+By installing Code GPT Editor, you agree to the Code GPT Terms of Service and Privacy Policy.
+
+Please review our Terms of Service at:
+https://codegpt.it.com/terms
+
+Please review our Privacy Policy at:
+https://codegpt.it.com/privacy
+
+Code GPT Editor is built on Code - OSS, the open-source code of Visual Studio Code, through VSCodium. Their licenses
+are below. Code GPT Editor is not made or endorsed by Microsoft.
+
+Click "I accept the agreement" below to continue with the installation.
