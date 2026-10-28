@@ -1,0 +1,12 @@
+[
+  {
+    "id": "codegpt-welcome",
+    "title": "Welcome to Code GPT Editor: open the Code GPT panel to start",
+    "url": "https://codegpt.it.com/learn/vscode-agent"
+  },
+  {
+    "id": "codegpt-forum",
+    "title": "Questions or ideas? Join the Code GPT community forum",
+    "url": "https://chat.codegpt.it.com/forum"
+  }
+]

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+	<id>@@NAME@@.desktop</id>
+	<metadata_license>@@LICENSE@@</metadata_license>
+	<project_license>@@LICENSE@@</project_license>
+	<name>@@NAME_LONG@@</name>
+	<url type="homepage">https://codegpt.it.com/editor</url>
+	<summary>The code editor with Code GPT built in.</summary>
+	<description>
+		<p>Code GPT Editor is a code editor built on the open-source code of VS Code, with the Code GPT coding agent, inline edits and AI models built in. Made by AMAR Developers.</p>
+	</description>
+</component>
