@@ -60,7 +60,7 @@ if [[ -z "${CERTIFICATE_OSX_P12_DATA}" ]]; then
   # Code GPT: no Apple certificate yet, so sign the app "ad-hoc". Apple silicon refuses to open apps with no signature at all;
   # with an ad-hoc signature macOS only asks the user to confirm once (System Settings > Privacy & Security > Open Anyway).
   echo "+ ad-hoc signing"
-  codesign --force --deep --sign - "VSCode-darwin-${VSCODE_ARCH}"/*.app || echo "ad-hoc signing failed, continuing"
+  codesign --force --deep --sign - "VSCode-darwin-${VSCODE_ARCH}"/*.app || echo "::warning::ad-hoc signing failed, continuing"
 fi
 
 if [[ "${SHOULD_BUILD_ZIP}" != "no" ]]; then
@@ -80,12 +80,21 @@ fi
 
 if [[ -z "${CERTIFICATE_OSX_P12_DATA}" && "${SHOULD_BUILD_DMG}" != "no" ]]; then
   # Code GPT: a plain drag-to-Applications disk image, made with macOS's own hdiutil (create-dmg needs a certificate).
+  # A failed disk image must never fail the build: the .zip is already made above.
   echo "Building and moving DMG (unsigned)"
-  STAGE="$( mktemp -d )"
-  cp -R "VSCode-darwin-${VSCODE_ARCH}"/*.app "${STAGE}/"
-  ln -s /Applications "${STAGE}/Applications"
-  hdiutil create -volname "Code GPT" -srcfolder "${STAGE}" -ov -format UDZO "assets/${APP_NAME}.${VSCODE_ARCH}.${RELEASE_VERSION}.dmg"
-  rm -rf "${STAGE}"
+  (
+    set +e
+    STAGE="$( mktemp -d )"
+    cp -R "VSCode-darwin-${VSCODE_ARCH}"/*.app "${STAGE}/" && ln -s /Applications "${STAGE}/Applications"
+    for try in 1 2 3; do
+      if out=$( hdiutil create -volname "Code GPT" -srcfolder "${STAGE}" -ov -format UDZO "assets/${APP_NAME}.${VSCODE_ARCH}.${RELEASE_VERSION}.dmg" 2>&1 ); then
+        echo "DMG made"; break
+      fi
+      echo "::warning::hdiutil try ${try} failed: ${out}"
+      sleep 15
+    done
+    rm -rf "${STAGE}"
+  ) || echo "::warning::DMG step failed; the .zip is still published"
 fi
 
 if [[ "${SHOULD_BUILD_SRC}" == "yes" ]]; then

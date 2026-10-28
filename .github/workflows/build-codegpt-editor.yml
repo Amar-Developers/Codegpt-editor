@@ -170,7 +170,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: macos-15
+          # GitHub's Apple silicon machines are often full ("not acquired by a runner"), so Apple silicon is
+          # cross-built on an Intel Mac, the way VSCodium built it before Apple silicon machines existed.
+          - runner: macos-15-intel
             vscode_arch: arm64
           - runner: macos-15-intel
             vscode_arch: x64
@@ -329,6 +331,18 @@ jobs:
           pattern: bin-*
           merge-multiple: true
           path: assets
+      - name: Check that every system is there
+        run: |
+          ls -1 assets
+          miss=""
+          ls assets/*UserSetup-x64-*.exe >/dev/null 2>&1 || miss="$miss Windows"
+          ls assets/*.deb >/dev/null 2>&1 || miss="$miss Linux"
+          ls assets/*darwin-x64-* >/dev/null 2>&1 || miss="$miss Mac-Intel"
+          ls assets/*darwin-arm64-* >/dev/null 2>&1 || miss="$miss Mac-Apple-silicon"
+          if [ -n "$miss" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "::error::Not publishing: missing$miss. The newest complete release stays the one people download."
+            exit 1
+          fi
       - name: Publish the GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
