@@ -1,1 +1,1 @@
-build 2026-10-28T15:28Z: Apple silicon on macos-15, Mac .dmg
+build 2026-10-28T18:25Z: Apple silicon cross-built on Intel, Mac .dmg
