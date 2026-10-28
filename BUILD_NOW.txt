@@ -1,1 +1,1 @@
-build 2026-10-28T19:37Z: Code GPT Home, clean defaults
+build 2026-10-28T19:44Z: Home top bar
