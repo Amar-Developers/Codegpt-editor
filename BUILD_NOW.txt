@@ -1,1 +1,1 @@
-build 2026-10-28T19:26Z: installer publisher AMAR Developers, license page
+build 2026-10-28T19:37Z: Code GPT Home, clean defaults

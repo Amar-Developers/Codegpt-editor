@@ -1,0 +1,35 @@
+{
+  "name": "codegpt-defaults",
+  "displayName": "Code GPT Editor defaults",
+  "description": "A calm, clean layout for Code GPT Editor. Every setting can still be changed in Settings.",
+  "version": "1.0.0",
+  "publisher": "amar-developers",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "configurationDefaults": {
+      "workbench.colorTheme": "Code GPT Dark",
+      "workbench.startupEditor": "none",
+      "workbench.welcomePage.walkthroughs.openOnInstall": false,
+      "workbench.tips.enabled": false,
+      "workbench.editor.empty.hint": "hidden",
+      "workbench.layoutControl.enabled": false,
+      "workbench.secondarySideBar.defaultVisibility": "hidden",
+      "editor.minimap.enabled": false,
+      "editor.fontSize": 14,
+      "editor.smoothScrolling": true,
+      "editor.cursorSmoothCaretAnimation": "on",
+      "window.commandCenter": true,
+      "extensions.ignoreRecommendations": true,
+      "chat.disableAIFeatures": true,
+      "chat.commandCenter.enabled": false,
+      "telemetry.telemetryLevel": "off",
+      "update.showReleaseNotes": false
+    }
+  }
+}
